@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Programa de Movimiento · Juana</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap');
+
+  :root {
+    --verde: #3D7A6A;
+    --verde-medio: #5A9B88;
+    --verde-claro: #C8E6DF;
+    --verde-muy-claro: #EDF7F4;
+    --dorado: #B8922A;
+    --dorado-claro: #F5E6C0;
+    --dorado-muy-claro: #FDF7EC;
+    --azul: #4A6FA5;
+    --azul-claro: #D4E1F5;
+    --lila: #7B6BA8;
+    --lila-claro: #E8E4F5;
+    --gris-texto: #2D2D2D;
+    --gris-medio: #6B6B6B;
+    --gris-claro: #F5F5F3;
+    --blanco: #FFFFFF;
+    --sombra: 0 2px 16px rgba(0,0,0,0.08);
+    --sombra-hover: 0 6px 24px rgba(0,0,0,0.13);
+    --radio: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #F7F5F0; color: var(--gris-texto); min-height: 100vh; }
+
+  .header {
+    background: var(--verde); color: white;
+    padding: 28px 24px 24px; text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .header::before { content:''; position:absolute; top:-40px; right:-40px; width:160px; height:160px; background:rgba(255,255,255,0.07); border-radius:50%; }
+  .header::after  { content:''; position:absolute; bottom:-60px; left:-30px; width:200px; height:200px; background:rgba(255,255,255,0.05); border-radius:50%; }
+  .header-nombre   { font-family:'Playfair Display',serif; font-size:32px; font-weight:700; letter-spacing:-0.5px; margin-bottom:4px; }
+  .header-subtitulo{ font-size:14px; opacity:.85; font-weight:300; letter-spacing:.5px; }
+
+  .nav { background:white; display:flex; border-bottom:2px solid var(--verde-claro); position:sticky; top:0; z-index:100; box-shadow:0 2px 8px rgba(0,0,0,.06); overflow-x:auto; }
+  .nav-btn { flex:1; min-width:90px; padding:14px 8px; border:none; background:none; font-family:'Inter',sans-serif; font-size:13px; font-weight:500; color:var(--gris-medio); cursor:pointer; transition:all .2s; border-bottom:3px solid transparent; margin-bottom:-2px; white-space:nowrap; }
+  .nav-btn:hover  { color:var(--verde); background:var(--verde-muy-claro); }
+  .nav-btn.active { color:var(--verde); border-bottom-color:var(--verde); font-weight:600; }
+
+  .section { display:none; padding:20px 16px 40px; max-width:680px; margin:0 auto; }
+  .section.active { display:block; }
+
+  .card { background:white; border-radius:var(--radio); box-shadow:var(--sombra); padding:20px; margin-bottom:16px; }
+  .card-title    { font-family:'Playfair Display',serif; font-size:20px; color:var(--verde); margin-bottom:6px; }
+  .card-subtitle { font-size:13px; color:var(--gris-medio); margin-bottom:16px; line-height:1.5; }
+
+  .semana-selector { display:flex; align-items:center; gap:12px; background:white; border-radius:var(--radio); padding:16px 20px; box-shadow:var(--sombra); margin-bottom:20px; }
+  .semana-selector label { font-weight:600; color:var(--verde); font-size:15px; flex:1; }
+  .semana-select { border:2px solid var(--verde-claro); border-radius:10px; padding:8px 14px; font-family:'Inter',sans-serif; font-size:14px; color:var(--gris-texto); background:var(--verde-muy-claro); cursor:pointer; outline:none; }
+  .semana-select:focus { border-color:var(--verde); }
+
+  .dia-bloque { border-radius:var(--radio); margin-bottom:16px; overflow:hidden; box-shadow:var(--sombra); }
+  .dia-header  { padding:14px 20px; color:white; font-weight:600; font-size:15px; display:flex; align-items:center; gap:10px; }
+  .dia-header.lunes     { background:var(--verde); }
+  .dia-header.miercoles { background:var(--dorado); }
+  .dia-header.viernes   { background:var(--azul); }
+  .dia-body { background:white; padding:16px 20px; }
+
+  .field { margin-bottom:14px; }
+  .field label { display:block; font-size:13px; color:var(--gris-medio); margin-bottom:6px; font-weight:500; }
+  .field textarea, .field input[type="text"] { width:100%; border:1.5px solid #E0E0DC; border-radius:10px; padding:10px 12px; font-family:'Inter',sans-serif; font-size:14px; color:var(--gris-texto); resize:none; transition:border-color .2s; background:var(--gris-claro); }
+  .field textarea:focus, .field input[type="text"]:focus { outline:none; border-color:var(--verde); background:white; }
+
+  .emoji-rating { display:flex; gap:12px; flex-wrap:wrap; }
+  .emoji-btn { border:2px solid #E0E0DC; background:var(--gris-claro); border-radius:12px; padding:10px 16px; font-size:22px; cursor:pointer; transition:all .2s; display:flex; flex-direction:column; align-items:center; gap:4px; }
+  .emoji-btn span { font-size:11px; color:var(--gris-medio); font-family:'Inter',sans-serif; }
+  .emoji-btn:hover  { border-color:var(--verde-medio); transform:scale(1.05); }
+  .emoji-btn.selected { border-color:var(--verde); background:var(--verde-muy-claro); }
+
+  .check-options { display:flex; gap:8px; flex-wrap:wrap; }
+  .check-opt { border:1.5px solid #E0E0DC; background:var(--gris-claro); border-radius:20px; padding:7px 14px; font-size:13px; cursor:pointer; transition:all .2s; font-family:'Inter',sans-serif; color:var(--gris-medio); }
+  .check-opt:hover { border-color:var(--verde-medio); color:var(--verde); }
+  .check-opt.selected      { border-color:var(--verde); background:var(--verde-muy-claro); color:var(--verde); font-weight:600; }
+  .check-opt.gold.selected { border-color:var(--dorado); background:var(--dorado-muy-claro); color:var(--dorado); }
+  .check-opt.blue.selected { border-color:var(--azul); background:var(--azul-claro); color:var(--azul); }
+
+  .btn-guardar { width:100%; background:var(--verde); color:white; border:none; border-radius:12px; padding:16px; font-family:'Inter',sans-serif; font-size:15px; font-weight:600; cursor:pointer; transition:all .2s; margin-top:8px; letter-spacing:.3px; }
+  .btn-guardar:hover  { background:var(--verde-medio); transform:translateY(-1px); box-shadow:var(--sombra-hover); }
+  .btn-guardar:active { transform:translateY(0); }
+
+  .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(100px); background:var(--verde); color:white; padding:14px 24px; border-radius:24px; font-size:14px; font-weight:500; box-shadow:0 8px 24px rgba(0,0,0,.2); transition:transform .3s cubic-bezier(.34,1.56,.64,1); z-index:999; white-space:nowrap; }
+  .toast.show { transform:translateX(-50%) translateY(0); }
+
+  .progreso-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:6px; margin-bottom:20px; }
+  .semana-dot { aspect-ratio:1; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:600; cursor:pointer; transition:transform .15s; border:2px solid transparent; }
+  .semana-dot:hover    { transform:scale(1.1); }
+  .semana-dot.vacia    { background:#E8E8E4; color:#AAA; }
+  .semana-dot.completa { background:var(--verde); color:white; }
+  .semana-dot.parcial  { background:var(--dorado-claro); color:var(--dorado); border-color:var(--dorado); }
+
+  .stats-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:16px; }
+  .stat-card  { background:white; border-radius:12px; padding:14px 10px; text-align:center; box-shadow:var(--sombra); }
+  .stat-num   { font-family:'Playfair Display',serif; font-size:28px; color:var(--verde); }
+  .stat-label { font-size:11px; color:var(--gris-medio); margin-top:2px; }
+
+  /* ── CLUSTER INFO ── */
+  .cluster-box { background:var(--dorado-muy-claro); border:1.5px solid var(--dorado-claro); border-radius:12px; padding:14px 16px; margin-bottom:16px; }
+  .cluster-titulo { font-weight:700; color:var(--dorado); font-size:13px; margin-bottom:8px; letter-spacing:.3px; }
+  .cluster-pasos  { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  .cluster-step   { background:var(--dorado); color:white; border-radius:8px; padding:5px 10px; font-size:12px; font-weight:600; white-space:nowrap; }
+  .cluster-flecha { color:var(--dorado); font-size:14px; font-weight:700; }
+  .cluster-rest   { background:white; border:1.5px solid var(--dorado-claro); color:var(--dorado); border-radius:8px; padding:5px 10px; font-size:12px; white-space:nowrap; }
+  .cluster-nota   { font-size:12px; color:var(--gris-medio); margin-top:8px; line-height:1.5; }
+
+  /* ── SEMAFORO ── */
+  .semaforo-box { background:var(--verde-muy-claro); border:1.5px solid var(--verde-claro); border-radius:12px; padding:14px 16px; margin-bottom:16px; }
+  .semaforo-titulo { font-weight:700; color:var(--verde); font-size:13px; margin-bottom:8px; }
+  .semaforo-items  { display:flex; flex-direction:column; gap:6px; }
+  .semaforo-item   { display:flex; align-items:flex-start; gap:10px; font-size:13px; }
+  .semaforo-color  { font-size:16px; flex-shrink:0; margin-top:1px; }
+  .semaforo-texto  { color:var(--gris-texto); line-height:1.4; }
+
+  /* ── PILLDORA MIERCOLES ── */
+  .pildora-box { background:var(--dorado-muy-claro); border-left:4px solid var(--dorado); border-radius:0 12px 12px 0; padding:14px 16px; margin-bottom:12px; }
+  .pildora-titulo { font-weight:700; color:var(--dorado); font-size:13px; margin-bottom:4px; }
+  .pildora-ej     { font-size:13px; color:var(--gris-texto); line-height:1.6; }
+
+  /* ── SESIONES ── */
+  .sesion-header { background:var(--verde); border-radius:var(--radio); padding:20px; color:white; margin-bottom:16px; position:relative; overflow:hidden; }
+  .sesion-header::after { content:''; position:absolute; right:-20px; bottom:-20px; width:100px; height:100px; background:rgba(255,255,255,.1); border-radius:50%; }
+  .sesion-num    { font-size:12px; opacity:.8; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; }
+  .sesion-titulo { font-family:'Playfair Display',serif; font-size:24px; font-weight:700; margin-bottom:8px; }
+  .sesion-desc   { font-size:13px; opacity:.9; line-height:1.5; }
+  .sesion-tags   { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+  .tag { background:rgba(255,255,255,.2); border-radius:20px; padding:4px 12px; font-size:12px; font-weight:500; }
+
+  .fase { border-radius:var(--radio); margin-bottom:12px; overflow:hidden; box-shadow:var(--sombra); }
+  .fase-header { padding:12px 16px; font-weight:600; font-size:14px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; user-select:none; }
+  .fase-header.calor     { background:var(--verde-muy-claro); color:var(--verde); border-left:4px solid var(--verde); }
+  .fase-header.principal { background:var(--dorado-muy-claro); color:var(--dorado); border-left:4px solid var(--dorado); }
+  .fase-header.calma     { background:var(--lila-claro); color:var(--lila); border-left:4px solid var(--lila); }
+  .fase-body { background:white; padding:0; max-height:0; overflow:hidden; transition:max-height .35s ease,padding .2s; }
+  .fase-body.open { max-height:3000px; padding:16px; }
+  .fase-arrow { transition:transform .3s; font-size:18px; }
+  .fase-arrow.open { transform:rotate(180deg); }
+
+  .ejercicio { border:1.5px solid #EEEEEA; border-radius:12px; padding:14px; margin-bottom:10px; }
+  .ejercicio:last-child { margin-bottom:0; }
+  .ej-nombre     { font-weight:600; font-size:15px; color:var(--gris-texto); margin-bottom:4px; }
+  .ej-posicion   { display:inline-block; font-size:11px; font-weight:600; letter-spacing:.5px; text-transform:uppercase; padding:2px 8px; border-radius:10px; margin-bottom:8px; }
+  .pos-sentada   { background:var(--verde-claro); color:var(--verde); }
+  .pos-pie       { background:var(--azul-claro); color:var(--azul); }
+  .ej-instruccion{ font-size:13px; color:var(--gris-medio); line-height:1.6; margin-bottom:8px; }
+  .ej-detalle    { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:4px; }
+  .ej-chip       { background:var(--gris-claro); border-radius:8px; padding:4px 10px; font-size:12px; color:var(--gris-medio); font-weight:500; }
+  .ej-chip.series{ background:var(--verde-muy-claro); color:var(--verde); }
+  .ej-chip.tiempo{ background:var(--dorado-muy-claro); color:var(--dorado); }
+  .ej-chip.rep   { background:var(--lila-claro); color:var(--lila); }
+  .ej-chip.cluster { background:#FFF3CD; color:#856404; border:1px solid #FFDEA0; }
+  .ej-aviso      { background:#FFF8E6; border-left:3px solid var(--dorado); border-radius:0 8px 8px 0; padding:8px 10px; font-size:12px; color:var(--dorado); margin-top:8px; line-height:1.5; }
+
+  .sesion-tabs { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:20px; }
+  .sesion-tab  { border:2px solid #E0E0DC; background:white; border-radius:12px; padding:12px 8px; text-align:center; cursor:pointer; transition:all .2s; font-family:'Inter',sans-serif; }
+  .sesion-tab:hover  { border-color:var(--verde-medio); }
+  .sesion-tab.active { border-color:var(--verde); background:var(--verde-muy-claro); }
+  .sesion-tab .s-num  { font-size:11px; color:var(--gris-medio); margin-bottom:2px; }
+  .sesion-tab .s-name { font-size:13px; font-weight:600; color:var(--verde); }
+  .sesion-tab .s-weeks{ font-size:10px; color:var(--gris-medio); margin-top:2px; }
+
+  .intro-card { background:linear-gradient(135deg,var(--verde-muy-claro),var(--dorado-muy-claro)); border-radius:var(--radio); padding:20px; margin-bottom:20px; border:1px solid var(--verde-claro); }
+  .intro-card p { font-size:14px; line-height:1.7; color:var(--gris-texto); }
+  .intro-card strong { color:var(--verde); }
+
+  .resumen-semana { background:white; border-radius:var(--radio); padding:16px; box-shadow:var(--sombra); margin-bottom:12px; border-left:4px solid var(--verde); }
+  .rs-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .rs-titulo  { font-weight:600; color:var(--verde); }
+  .rs-fecha   { font-size:12px; color:var(--gris-medio); }
+  .rs-chips   { display:flex; gap:6px; flex-wrap:wrap; }
+  .rs-chip    { font-size:12px; padding:3px 10px; border-radius:10px; }
+  .rs-chip.ok     { background:var(--verde-claro); color:var(--verde); }
+  .rs-chip.no     { background:#FFE8E8; color:#C0392B; }
+  .rs-chip.parcial{ background:var(--dorado-claro); color:var(--dorado); }
+
+  /* ── RETOS ── */
+  .reto-card { background:white; border-radius:var(--radio); box-shadow:var(--sombra); margin-bottom:14px; overflow:hidden; }
+  .reto-header { padding:14px 18px; display:flex; align-items:center; gap:14px; }
+  .reto-num { width:36px; height:36px; border-radius:50%; background:var(--azul); color:white; font-family:'Playfair Display',serif; font-size:16px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .reto-num.logrado { background:var(--verde); }
+  .reto-semana { font-size:11px; color:var(--gris-medio); text-transform:uppercase; letter-spacing:.5px; margin-bottom:2px; }
+  .reto-nombre { font-weight:700; font-size:15px; color:var(--gris-texto); }
+  .reto-badge { margin-left:auto; font-size:11px; font-weight:600; padding:4px 10px; border-radius:10px; white-space:nowrap; }
+  .reto-badge.logrado { background:var(--verde-claro); color:var(--verde); }
+  .reto-badge.pendiente { background:var(--azul-claro); color:var(--azul); }
+  .reto-badge.actual { background:var(--dorado-claro); color:var(--dorado); }
+  .reto-body { padding:0 18px 16px; }
+  .reto-why { font-size:12px; color:var(--gris-medio); background:var(--gris-claro); border-radius:8px; padding:8px 12px; margin-bottom:10px; line-height:1.5; }
+  .reto-why strong { color:var(--verde); }
+  .reto-instruccion { font-size:13px; color:var(--gris-texto); line-height:1.6; margin-bottom:10px; }
+  .reto-aviso { background:#FFF8E6; border-left:3px solid var(--dorado); border-radius:0 8px 8px 0; padding:8px 10px; font-size:12px; color:var(--dorado); line-height:1.5; margin-bottom:10px; }
+  .reto-logro-btn { width:100%; border:2px solid var(--azul); background:white; color:var(--azul); border-radius:10px; padding:10px; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; cursor:pointer; transition:all .2s; }
+  .reto-logro-btn:hover { background:var(--azul-claro); }
+  .reto-logro-btn.done { background:var(--verde); border-color:var(--verde); color:white; }
+  .reto-semana-label { font-size:13px; font-weight:700; color:var(--azul); margin:20px 0 8px 4px; letter-spacing:.3px; }
+
+  @media(max-width:480px){
+    .stats-row   { grid-template-columns:1fr 1fr; }
+    .sesion-tabs { grid-template-columns:repeat(2,1fr); }
+    .cluster-pasos { gap:4px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-nombre">Hola, Juana 👋</div>
+  <div class="header-subtitulo">Tu programa de movimiento · 2026</div>
+</div>
+
+<nav class="nav">
+  <button class="nav-btn active" onclick="showSection('diario',this)">📓 Diario</button>
+  <button class="nav-btn" onclick="showSection('pildoras',this)">📖 Píldoras</button>
+  <button class="nav-btn" onclick="showSection('retos',this)">⭐ Retos</button>
+  <button class="nav-btn" onclick="showSection('sesiones',this)">🏋️ Sesiones</button>
+  <button class="nav-btn" onclick="showSection('progreso',this)">📊 Progreso</button>
+</nav>
+
+<!-- ══ DIARIO ══ -->
+<div id="diario" class="section active">
+
+  <div class="semana-selector">
+    <label>Semana actual</label>
+    <select class="semana-select" id="semana-actual" onchange="cargarSemana()">
+      <option value="1">Semana 1</option><option value="2">Semana 2</option>
+      <option value="3">Semana 3</option><option value="4">Semana 4</option>
+      <option value="5">Semana 5</option><option value="6">Semana 6</option>
+      <option value="7">Semana 7</option><option value="8">Semana 8</option>
+      <option value="9">Semana 9</option><option value="10">Semana 10</option>
+      <option value="11">Semana 11</option><option value="12">Semana 12</option>
+    </select>
+  </div>
+
+  <!-- SEMAFORO recordatorio -->
+  <div class="semaforo-box">
+    <div class="semaforo-titulo">🚦 Recuerda: tu semáforo personal</div>
+    <div class="semaforo-items">
+      <div class="semaforo-item"><span class="semaforo-color">🟢</span><span class="semaforo-texto"><strong>Verde</strong> — Me siento bien, puedo continuar</span></div>
+      <div class="semaforo-item"><span class="semaforo-color">🟡</span><span class="semaforo-texto"><strong>Amarillo</strong> — Noto esfuerzo pero está bien</span></div>
+      <div class="semaforo-item"><span class="semaforo-color">🔴</span><span class="semaforo-texto"><strong>Rojo</strong> — Necesito parar o avisar a mi entrenadora</span></div>
+    </div>
+  </div>
+
+  <!-- LUNES -->
+  <div class="dia-bloque">
+    <div class="dia-header lunes">🟢 Lunes — Sesión con mi entrenadora</div>
+    <div class="dia-body">
+      <div class="field">
+        <label>¿Hice la sesión?</label>
+        <div class="check-options" id="lunes-sesion">
+          <button class="check-opt" onclick="selectOpt(this,'lunes-sesion')">✅ Sí, completa</button>
+          <button class="check-opt" onclick="selectOpt(this,'lunes-sesion')">🟡 Parcialmente</button>
+          <button class="check-opt" onclick="selectOpt(this,'lunes-sesion')">❌ No pude</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>¿Cómo me sentí físicamente?</label>
+        <div class="emoji-rating" id="lunes-fisico">
+          <button class="emoji-btn" onclick="selectEmoji(this,'lunes-fisico')">💪<span>Muy bien</span></button>
+          <button class="emoji-btn" onclick="selectEmoji(this,'lunes-fisico')">🙂<span>Bien</span></button>
+          <button class="emoji-btn" onclick="selectEmoji(this,'lunes-fisico')">😐<span>Regular</span></button>
+          <button class="emoji-btn" onclick="selectEmoji(this,'lunes-fisico')">😣<span>Con molestias</span></button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Mi semáforo de hoy</label>
+        <div class="check-options" id="lunes-semaforo">
+          <button class="check-opt" onclick="selectOpt(this,'lunes-semaforo')">🟢 Verde</button>
+          <button class="check-opt" onclick="selectOpt(this,'lunes-semaforo')">🟡 Amarillo</button>
+          <button class="check-opt" onclick="selectOpt(this,'lunes-semaforo')">🔴 Rojo</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>¿Dónde sentí molestias? (si las hubo)</label>
+        <input type="text" id="lunes-molestias" placeholder="Ej: zona lumbar, rodillas...">
+      </div>
+      <div class="field">
+        <label>¿Qué ejercicio me costó más?</label>
+        <input type="text" id="lunes-costo" placeholder="Escribe aquí...">
+      </div>
+      <div class="field">
+        <label>¿Qué ejercicio me gustó más?</label>
+        <input type="text" id="lunes-gusto" placeholder="Escribe aquí...">
+      </div>
+      <div class="field">
+        <label>Mis notas del lunes</label>
+        <textarea id="lunes-notas" rows="3" placeholder="Cómo me sentí, algo que quiero recordar..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- MIÉRCOLES -->
+  <div class="dia-bloque">
+    <div class="dia-header miercoles">📖 Miércoles — Mi pausa del lector</div>
+    <div class="dia-body">
+      <div class="field">
+        <label>¿Hice mi pausa de movimiento?</label>
+        <div class="check-options" id="mierc-hizo">
+          <button class="check-opt gold" onclick="selectOpt(this,'mierc-hizo')">✅ Sí</button>
+          <button class="check-opt gold" onclick="selectOpt(this,'mierc-hizo')">🟡 Un momento</button>
+          <button class="check-opt gold" onclick="selectOpt(this,'mierc-hizo')">❌ No hoy</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>¿Cuántas pausas hice a lo largo del día?</label>
+        <div class="check-options" id="mierc-veces">
+          <button class="check-opt gold" onclick="selectOpt(this,'mierc-veces')">1 pausa</button>
+          <button class="check-opt gold" onclick="selectOpt(this,'mierc-veces')">2 pausas</button>
+          <button class="check-opt gold" onclick="selectOpt(this,'mierc-veces')">3 o más</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>¿Cómo me sentí?</label>
+        <div class="emoji-rating" id="mierc-sentio">
+          <button class="emoji-btn" onclick="selectEmoji(this,'mierc-sentio')">😄<span>Genial</span></button>
+          <button class="emoji-btn" onclick="selectEmoji(this,'mierc-sentio')">🙂<span>Bien</span></button>
+          <button class="emoji-btn" onclick="selectEmoji(this,'mierc-sentio')">😐<span>Regular</span></button>
+        </div>
+      </div>
+      <div class="field">
+        <label>¿Qué estaba leyendo cuando hice la pausa?</label>
+        <input type="text" id="mierc-libro" placeholder="Título o tema del libro...">
+      </div>
+    </div>
+  </div>
+
+  <!-- VIERNES -->
+  <div class="dia-bloque">
+    <div class="dia-header viernes">⭐ Viernes — Mi reto semanal</div>
+    <div class="dia-body">
+      <div class="field">
+        <label>Reto de esta semana</label>
+        <input type="text" id="vier-reto" placeholder="¿Cuál fue el reto?">
+      </div>
+      <div class="field">
+        <label>¿Lo practiqué hoy?</label>
+        <div class="check-options" id="vier-practico">
+          <button class="check-opt blue" onclick="selectOpt(this,'vier-practico')">✅ Sí</button>
+          <button class="check-opt blue" onclick="selectOpt(this,'vier-practico')">🟡 Lo intenté</button>
+          <button class="check-opt blue" onclick="selectOpt(this,'vier-practico')">❌ No hoy</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>¿Cuántas veces lo practiqué a lo largo del día?</label>
+        <div class="check-options" id="vier-veces">
+          <button class="check-opt blue" onclick="selectOpt(this,'vier-veces')">1 vez</button>
+          <button class="check-opt blue" onclick="selectOpt(this,'vier-veces')">2-3 veces</button>
+          <button class="check-opt blue" onclick="selectOpt(this,'vier-veces')">4 o más</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>¿Lo conseguí?</label>
+        <div class="check-options" id="vier-logro">
+          <button class="check-opt blue" onclick="selectOpt(this,'vier-logro')">🏆 ¡Sí, lo logré!</button>
+          <button class="check-opt blue" onclick="selectOpt(this,'vier-logro')">🟡 Casi</button>
+          <button class="check-opt blue" onclick="selectOpt(this,'vier-logro')">💪 Sigo practicando</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VALORACIÓN -->
+  <div class="card">
+    <div class="card-title">✨ Mi valoración de la semana</div>
+    <div class="card-subtitle">Un momento para reflexionar. Sin prisa.</div>
+    <div class="field">
+      <label>¿Cómo fue mi semana en general?</label>
+      <div class="emoji-rating" id="resumen-general">
+        <button class="emoji-btn" onclick="selectEmoji(this,'resumen-general')">😊<span>Genial</span></button>
+        <button class="emoji-btn" onclick="selectEmoji(this,'resumen-general')">😐<span>Normal</span></button>
+        <button class="emoji-btn" onclick="selectEmoji(this,'resumen-general')">😔<span>Difícil</span></button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Lo mejor de esta semana fue...</label>
+      <textarea id="resumen-mejor" rows="2" placeholder="Escribe aquí..."></textarea>
+    </div>
+    <div class="field">
+      <label>Para la semana que viene quiero...</label>
+      <textarea id="resumen-quiero" rows="2" placeholder="Escribe aquí..."></textarea>
+    </div>
+    <button class="btn-guardar" onclick="guardarSemana()">💾 Guardar mi semana</button>
+  </div>
+</div>
+
+
+<!-- ══ PÍLDORAS MIÉRCOLES ══ -->
+<div id="pildoras" class="section">
+  <div class="intro-card">
+    <p>Cada miércoles, cuando termines un rato de lectura, haz esta pequeña pausa de <strong>3-4 minutos</strong>. Dos ejercicios nada más. Puedes repetirla 1, 2 o 3 veces al día, cuando quieras. <strong>Sin presión.</strong></p>
+  </div>
+
+  <div id="pildoras-content"></div>
+</div>
+
+
+<!-- ══ RETOS ══ -->
+<div id="retos" class="section">
+  <div class="intro-card">
+    <p>Cada <strong>viernes</strong> tienes un reto diferente. Son pequeños desafíos de equilibrio que puedes practicar <strong>varias veces a lo largo del día</strong>, en momentos cortos. No hace falta hacerlo todo junto. <strong>La silla siempre cerca.</strong></p>
+  </div>
+  <div id="retos-content"></div>
+</div>
+
+<!-- ══ SESIONES ══ -->
+<div id="sesiones" class="section">
+  <div class="intro-card">
+    <p>Estas son tus sesiones del <strong>lunes con tu entrenadora</strong>. Cada sesión dura <strong>1 hora</strong> y progresa poco a poco. Puedes consultarlas cuando quieras.</p>
+  </div>
+  <div class="sesion-tabs">
+    <div class="sesion-tab active" onclick="showSesion(1,this)">
+      <div class="s-num">SESIÓN</div><div class="s-name">1</div><div class="s-weeks">Semanas 1-2</div>
+    </div>
+    <div class="sesion-tab" onclick="showSesion(2,this)">
+      <div class="s-num">SESIÓN</div><div class="s-name">2</div><div class="s-weeks">Semanas 3-4</div>
+    </div>
+    <div class="sesion-tab" onclick="showSesion(3,this)">
+      <div class="s-num">SESIÓN</div><div class="s-name">3</div><div class="s-weeks">Semanas 5-6</div>
+    </div>
+    <div class="sesion-tab" onclick="showSesion(4,this)">
+      <div class="s-num">SESIÓN</div><div class="s-name">4</div><div class="s-weeks">Semanas 7-8</div>
+    </div>
+  </div>
+  <div id="sesion-content"></div>
+</div>
+
+
+<!-- ══ PROGRESO ══ -->
+<div id="progreso" class="section">
+  <div class="stats-row" id="stats-row">
+    <div class="stat-card"><div class="stat-num" id="stat-completadas">0</div><div class="stat-label">Semanas registradas</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-lunes">0</div><div class="stat-label">Sesiones completadas</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-retos">0</div><div class="stat-label">Retos logrados</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Mis 12 semanas</div>
+    <div class="card-subtitle">Toca una semana para ver su resumen.</div>
+    <div class="progreso-grid" id="progreso-grid"></div>
+  </div>
+  <div id="historial-semanas"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA ──
+const STORAGE_KEY = 'juana_diario_v2';
+function getData() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; } }
+function saveData(d) { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); }
+
+// ── NAV ──
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  else document.querySelectorAll('.nav-btn').forEach(b => { if(b.getAttribute('onclick')?.includes(id)) b.classList.add('active'); });
+  if (id === 'progreso') renderProgreso();
+  if (id === 'sesiones') showSesion(1, document.querySelector('.sesion-tab'));
+  if (id === 'pildoras') renderPildoras();
+  if (id === 'retos') renderRetos();
+}
+
+// ── SELECTORS ──
+function selectOpt(el, gid) { document.querySelectorAll(`#${gid} .check-opt`).forEach(b => b.classList.remove('selected')); el.classList.add('selected'); }
+function selectEmoji(el, gid) { document.querySelectorAll(`#${gid} .emoji-btn`).forEach(b => b.classList.remove('selected')); el.classList.add('selected'); }
+
+// ── SEMANA ──
+function getSemanaKey() { return 'semana_' + document.getElementById('semana-actual').value; }
+
+function cargarSemana() {
+  const sem = (getData()[getSemanaKey()]) || {};
+  document.querySelectorAll('.check-opt, .emoji-btn').forEach(b => b.classList.remove('selected'));
+  ['lunes-molestias','lunes-costo','lunes-gusto','lunes-notas','mierc-libro','vier-reto','resumen-mejor','resumen-quiero'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = sem[id] || '';
+  });
+  ['lunes-sesion','lunes-fisico','lunes-semaforo','mierc-hizo','mierc-veces','mierc-sentio','vier-practico','vier-veces','vier-logro','resumen-general'].forEach(gid => {
+    const val = sem[gid];
+    if (val) document.querySelectorAll(`#${gid} button`).forEach(b => { if(b.textContent.trim()===val) b.classList.add('selected'); });
+  });
+}
+
+function guardarSemana() {
+  const data = getData(); const key = getSemanaKey(); const sem = {};
+  ['lunes-molestias','lunes-costo','lunes-gusto','lunes-notas','mierc-libro','vier-reto','resumen-mejor','resumen-quiero'].forEach(id => { sem[id] = document.getElementById(id)?.value || ''; });
+  ['lunes-sesion','lunes-fisico','lunes-semaforo','mierc-hizo','mierc-veces','mierc-sentio','vier-practico','vier-veces','vier-logro','resumen-general'].forEach(gid => {
+    const sel = document.querySelector(`#${gid} .selected`); sem[gid] = sel ? sel.textContent.trim() : '';
+  });
+  sem.fecha = new Date().toLocaleDateString('es-ES');
+  data[key] = sem; saveData(data);
+  showToast('✅ Semana guardada. ¡Muy bien, Juana!');
+}
+
+function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
+
+// ── PROGRESO ──
+function renderProgreso() {
+  const data = getData();
+  const grid = document.getElementById('progreso-grid');
+  const historial = document.getElementById('historial-semanas');
+  grid.innerHTML = ''; historial.innerHTML = '';
+  let completadas=0, lunesSi=0, retosSi=0;
+  for (let i=1;i<=12;i++) {
+    const sem = data['semana_'+i];
+    const dot = document.createElement('div');
+    dot.className = 'semana-dot'; dot.textContent = i;
+    if (!sem) { dot.classList.add('vacia'); dot.title=`Semana ${i} — Sin registrar`; }
+    else {
+      completadas++;
+      if ((sem['lunes-sesion']||'').includes('Sí')) { lunesSi++; dot.classList.add('completa'); }
+      else dot.classList.add('parcial');
+      dot.title = `Semana ${i} — ${sem.fecha||''}`;
+      dot.onclick = () => mostrarResumen(i, sem, historial);
+    }
+    grid.appendChild(dot);
+  }
+  for (let i=1;i<=12;i++) { const sem=data['semana_'+i]; if(sem&&(sem['vier-logro']||'').includes('logré')) retosSi++; }
+  document.getElementById('stat-completadas').textContent = completadas;
+  document.getElementById('stat-lunes').textContent = lunesSi;
+  document.getElementById('stat-retos').textContent = retosSi;
+}
+
+function mostrarResumen(num, sem, container) {
+  container.innerHTML = `
+    <div class="resumen-semana">
+      <div class="rs-header"><div class="rs-titulo">Semana ${num}</div><div class="rs-fecha">${sem.fecha||''}</div></div>
+      <div class="rs-chips">
+        <span class="rs-chip ${(sem['lunes-sesion']||'').includes('Sí')?'ok':(sem['lunes-sesion']||'').includes('Parc')?'parcial':'no'}">🟢 Lunes: ${sem['lunes-sesion']||'Sin registrar'}</span>
+        <span class="rs-chip ${(sem['mierc-hizo']||'').includes('Sí')?'ok':'parcial'}">📖 Miércoles: ${sem['mierc-hizo']||'Sin registrar'}</span>
+        <span class="rs-chip ${(sem['vier-logro']||'').includes('logré')?'ok':'parcial'}">⭐ Viernes: ${sem['vier-logro']||'Sin registrar'}</span>
+      </div>
+      ${sem['resumen-mejor']?`<p style="margin-top:10px;font-size:13px;color:#5A5A5A">💬 "${sem['resumen-mejor']}"</p>`:''}
+    </div>`;
+}
+
+// ── FASES ──
+function toggleFase(el) {
+  const body = el.nextElementSibling;
+  const arrow = el.querySelector('.fase-arrow');
+  body.classList.toggle('open'); arrow.classList.toggle('open');
+}
+
+// ── PÍLDORAS DATA ──
+const pildoras = [
+  { semanas:'Semanas 1-2', ej1:{ pos:'sentada', nombre:'Elevación de talones (soleo)', instruccion:'Sentada en la silla con los pies bien apoyados, levanta los talones del suelo quedando en punta de pies. Mantén 2 segundos arriba y baja despacio. Sientes el trabajo en la pantorrilla.' , chips:'2 series · 10 repeticiones' },
+    ej2:{ pos:'pie', nombre:'Gemelos en la pared', instruccion:'De pie frente a la pared con las dos manos apoyadas. Sube en puntillas con los dos pies a la vez, mantén 2 segundos arriba y baja muy despacio. Controla la bajada.', chips:'2 series · 10 repeticiones' } },
+  { semanas:'Semanas 3-4', ej1:{ pos:'sentada', nombre:'Elevación de talones — más lenta', instruccion:'Igual que antes pero ahora la bajada la hacemos en 3 tiempos: 1-2-3. Muy despacio. Ese control es lo que más fortalece.', chips:'2 series · 10 repeticiones' },
+    ej2:{ pos:'pie', nombre:'Gemelos con pausa arriba', instruccion:'Sube en puntillas y mantén 3 segundos arriba antes de bajar. Nota bien el esfuerzo en la pantorrilla.', chips:'2 series · 10 repeticiones' } },
+  { semanas:'Semanas 5-6', ej1:{ pos:'sentada', nombre:'Elevación de talones + extensión de rodilla', instruccion:'Primero extiende una pierna hacia adelante, luego sube el talón de la otra pierna. Alterna. Un pequeño reto de coordinación.', chips:'2 series · 8 por pierna' },
+    ej2:{ pos:'pie', nombre:'Gemelos alternos', instruccion:'Ahora subes un talón y luego el otro, alternando. Como si caminaras muy despacio en puntillas en el sitio.', chips:'2 series · 10 por pie' } },
+  { semanas:'Semanas 7-8', ej1:{ pos:'sentada', nombre:'Elevación de talones con banda en muslos', instruccion:'Coloca la banda circular sobre los muslos. Al subir los talones, empuja ligeramente las rodillas hacia afuera contra la banda. Dos trabajos a la vez.', chips:'2 series · 10 repeticiones' },
+    ej2:{ pos:'pie', nombre:'Gemelos con una mano en pared', instruccion:'La misma elevación de gemelos pero ahora con una sola mano en la pared. Pequeño reto de equilibrio añadido.', chips:'2 series · 10 repeticiones' } },
+];
+
+function renderPildoras() {
+  const container = document.getElementById('pildoras-content');
+  container.innerHTML = pildoras.map((p,i) => `
+    <div style="margin-bottom:20px;">
+      <div style="font-weight:700;color:var(--verde);font-size:14px;margin-bottom:10px;padding-left:4px;">${p.semanas}</div>
+      <div class="pildora-box">
+        <div class="pildora-titulo">🪑 Sentada — ${p.ej1.nombre}</div>
+        <div class="pildora-ej">${p.ej1.instruccion}<br><br><strong>${p.ej1.chips}</strong></div>
+      </div>
+      <div class="pildora-box" style="background:var(--azul-claro);border-color:#B8D4F0;border-left-color:var(--azul);">
+        <div class="pildora-titulo" style="color:var(--azul);">🧍 De pie — ${p.ej2.nombre}</div>
+        <div class="pildora-ej">${p.ej2.instruccion}<br><br><strong>${p.ej2.chips}</strong></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── SESIONES DATA ──
+const CLUSTER = `<div class="cluster-box">
+  <div class="cluster-titulo">⚙️ FORMATO CLUSTER SET</div>
+  <div class="cluster-pasos">
+    <span class="cluster-step">5 rep</span>
+    <span class="cluster-flecha">→</span>
+    <span class="cluster-rest">Descanso activo 30"</span>
+    <span class="cluster-flecha">→</span>
+    <span class="cluster-step">5 rep</span>
+    <span class="cluster-flecha">→</span>
+    <span class="cluster-rest">Descanso activo 1'</span>
+    <span class="cluster-flecha">→</span>
+    <span class="cluster-step">5 rep</span>
+    <span class="cluster-flecha">→</span>
+    <span class="cluster-rest">Descanso activo 30"</span>
+    <span class="cluster-flecha">→</span>
+    <span class="cluster-step">5 rep</span>
+  </div>
+  <div class="cluster-nota">El descanso activo son respiraciones lentas o marcha suave en el sitio. No es descanso total, pero sí recuperación.</div>
+</div>`;
+
+const sesiones = {
+  1: {
+    num:'SESIÓN 1', titulo:'Primera toma de contacto', semanas:'Semanas 1 y 2',
+    desc:'Tu primera sesión. Todo muy controlado, sin prisa. Lo más importante es que tu cuerpo empiece a despertar y que te sientas segura en cada movimiento.',
+    tags:['Sentada y de pie con apoyo','Sin bandas','60 minutos','Cluster set'],
+    usaCluster: true,
+    calor:[
+      { nombre:'Movilidad articular de pies y tobillos', pos:'sentada', instruccion:'Círculos lentos de tobillos (8 en cada dirección), flexión y extensión de dedos, y deslizar el pie por el suelo hacia adelante y hacia atrás. Despierta las articulaciones con calma.', tiempo:'3 minutos', aviso:null },
+      { nombre:'Elevación alternada de rodillas', pos:'sentada', instruccion:'Levanta una rodilla con calma y vuelve a apoyar. Alterna las dos piernas de forma rítmica. Sin forzar.', rep:'10 elevaciones en total', aviso:null },
+      { nombre:'Círculos de hombros y movilidad de cuello', pos:'sentada', instruccion:'Círculos de hombros hacia atrás y hacia adelante. Luego inclinaciones suaves de cuello (oreja al hombro, sin rotar).', tiempo:'2 minutos', aviso:null },
+      { nombre:'Respiración diafragmática', pos:'sentada', instruccion:'Una mano en el pecho, otra en la barriga. Inhala 4 segundos por la nariz, exhala 6 segundos por la boca. Nota cómo el cuerpo se relaja con cada exhalación.', tiempo:'2 minutos', aviso:null },
+      { nombre:'Marcha suave en el sitio', pos:'pie', instruccion:'De pie, las dos manos en la pared o agarrada al respaldo de la silla. Levanta suavemente un pie y luego el otro, como si caminaras muy despacio en el mismo lugar.', tiempo:'2 minutos', aviso:'Siempre con apoyo de las dos manos.' },
+    ],
+    principal:[
+      { nombre:'Gemelos de pie', pos:'pie', cluster:true, instruccion:'Las dos manos apoyadas en la pared. Sube en puntillas con los dos pies a la vez, mantén 2 segundos arriba y baja despacio controlando la bajada.', aviso:'La bajada lenta es tan importante como la subida. La pared da seguridad total.' },
+      { nombre:'Pectoral isométrico', pos:'pie', cluster:true, instruccion:'De pie frente a la pared con las palmas apoyadas a la altura del pecho. Empuja la pared con fuerza durante 5-6 segundos como si quisieras atravesarla, pero la pared no se mueve. Nota cómo trabaja el pecho.', tiempo:'5-6 seg por repetición', aviso:'La espalda recta en todo momento. No arquear la zona lumbar.' },
+      { nombre:'Sentadilla isométrica en pared', pos:'pie', cluster:true, instruccion:'Espalda apoyada en la pared, baja deslizando hasta una posición cómoda con las rodillas ligeramente flexionadas (no más de 90 grados). Mantén la posición el tiempo indicado. La espalda siempre plana contra la pared.', tiempo:'15 seg (progresando desde 10)', aviso:'⚠️ Espalda completamente plana en la pared en todo momento. Si aparece molestia lumbar, sube un poco la posición.' },
+      { nombre:'Pallof press con banda (core antirotación)', pos:'sentada', instruccion:'Sentada en la silla con la banda anclada a un lado. Sostén la banda con las dos manos frente al pecho y empuja hacia adelante estirando los brazos, resistiendo que la banda te gire. Mantén 5 segundos y vuelve. Esta semana solo trabajamos el lado izquierdo — el próximo día completamos el derecho.', tiempo:'5 seg por repetición', aviso:'⚠️ PENDIENTE: trabajar también el lado derecho en la próxima sesión. La columna permanece neutra, sin rotación.' },
+      { nombre:'Equilibrio en pared', pos:'pie', instruccion:'De pie apoyada en la pared con la espalda. Levanta un pie apenas unos centímetros del suelo y mantén. Empezamos con 5 segundos y vamos llegando hasta 15 según te sientas.', tiempo:'5 a 15 seg por pie', aviso:'La pared da seguridad. Si en algún momento sientes inestabilidad, apoya el pie.' },
+      { nombre:'Remo sentada con banda', pos:'sentada', instruccion:'Sentada bien erguida, banda anclada frente a ti. Tira hacia tus costados con los codos pegados al cuerpo, pensando en juntar los omóplatos. Mantén 1 segundo al llegar y vuelve despacio.', aviso:'Espalda recta siempre, sin inclinar el tronco hacia atrás al tirar.' },
+    ],
+    calma:[
+      { nombre:'Estiramiento de isquiotibiales sentada', pos:'sentada', instruccion:'Apoya el talón de una pierna en una silla frente a ti con la pierna estirada. Inclínate suavemente desde las caderas (no desde la espalda) hasta sentir tensión en la parte trasera del muslo. Sin rebotar.', tiempo:'30 seg por pierna', aviso:'Si aparece molestia en la espalda, reduce la inclinación.' },
+      { nombre:'Respiración costal lateral', pos:'sentada', instruccion:'Manos en los costados de las costillas. Inhala y nota cómo se expanden hacia los lados. Exhala despacio. Este ejercicio moviliza el tórax sin mover la columna.', tiempo:'2 minutos', aviso:null },
+      { nombre:'Apertura de pecho', pos:'sentada', instruccion:'Lleva los brazos suavemente hacia atrás abriendo el pecho. Mantén con respiración tranquila.', tiempo:'30 segundos', aviso:null },
+      { nombre:'Charla de cierre', pos:'sentada', instruccion:'¿Cómo te has sentido? ¿Qué te costó? ¿Notaste algo diferente en tu cuerpo? Esto es tan parte de la sesión como los ejercicios.', tiempo:'5 minutos', aviso:null },
+    ]
+  },
+
+  2: {
+    num:'SESIÓN 2', titulo:'Completando y añadiendo', semanas:'Semanas 3 y 4',
+    desc:'Completamos el Pallof press por ambos lados y añadimos la banda en algunos ejercicios. Tu cuerpo ya conoce los movimientos, ahora los hacemos un poco más intensos.',
+    tags:['Sentada y de pie con apoyo','Con banda ligera','60 minutos','Cluster set'],
+    usaCluster: true,
+    calor:[
+      { nombre:'Movilidad articular progresiva', pos:'sentada', instruccion:'Tobillos, rodillas y caderas. Círculos de cada articulación, de abajo hacia arriba. Más consciente y completa que la semana anterior.', tiempo:'4 minutos', aviso:null },
+      { nombre:'Marcha con elevación de rodilla', pos:'pie', instruccion:'Marcha en el sitio levantando un poco más las rodillas que antes, con ritmo tranquilo. Dos manos en el respaldo.', tiempo:'2 minutos', aviso:null },
+      { nombre:'Transferencias de peso lateral', pos:'pie', instruccion:'De pie agarrada al respaldo, desplaza el peso suavemente de un lado al otro. Lento y controlado, sintiendo cómo el peso cambia de pie.', tiempo:'2 minutos', aviso:null },
+    ],
+    principal:[
+      { nombre:'Gemelos de pie — bajada más lenta', pos:'pie', cluster:true, instruccion:'Igual que la sesión 1 pero ahora la bajada la hacemos contando 3 tiempos: 1-2-3. Ese control excéntrico es donde se fortalece más la pantorrilla.', aviso:null },
+      { nombre:'Pectoral isométrico — más fuerza', pos:'pie', cluster:true, instruccion:'La misma contracción contra la pared pero ahora empujamos con más intención. Si antes era un 6 de 10, ahora buscamos un 7-8 de 10 de esfuerzo.', tiempo:'5-6 seg por repetición', aviso:'Espalda recta siempre.' },
+      { nombre:'Sentadilla isométrica en pared — más tiempo', pos:'pie', cluster:true, instruccion:'Misma posición que antes pero mantenemos 20 segundos. Si la semana anterior llegaste a 25 con comodidad, eso es tu nuevo punto de partida.', tiempo:'20-25 seg', aviso:'Espalda plana en la pared. Si molesta la zona lumbar, sube la posición.' },
+      { nombre:'Pallof press ambos lados', pos:'sentada', cluster:true, instruccion:'¡Hoy completamos los dos lados! Primero el izquierdo (que ya conoces) y luego el derecho. Misma ejecución: banda anclada al lado, brazos que empujan al frente resistiendo la rotación, columna neutra.', tiempo:'5 seg por repetición', aviso:'Trabajar los dos lados en la misma sesión para equilibrar el core.' },
+      { nombre:'Equilibrio — aumentando el tiempo', pos:'pie', instruccion:'Misma posición en pared pero ahora buscamos mantener 15 segundos por pie con comodidad. Si lo consigues, intentamos separarnos un poco de la pared.', tiempo:'15 seg por pie', aviso:null },
+      { nombre:'Remo con banda — tensión media', pos:'sentada', instruccion:'Igual que antes pero con una banda de más tensión. Mantén 2 segundos al llegar con los codos atrás, sintiendo el trabajo entre los omóplatos.', aviso:'Espalda recta, sin inclinarse hacia atrás.' },
+    ],
+    calma:[
+      { nombre:'Estiramiento de isquiotibiales', pos:'sentada', instruccion:'Igual que siempre. Talón apoyado, inclinación desde las caderas. Ahora con más confianza.', tiempo:'35 seg por pierna', aviso:null },
+      { nombre:'Estiramiento de cadera en silla', pos:'sentada', instruccion:'Cruza un tobillo sobre la rodilla contraria formando una figura 4. Espalda recta. Nota el estiramiento en la cadera y el glúteo. Solo si no hay molestia en la espalda.', tiempo:'30 seg por lado', aviso:'Si molesta la zona lumbar, retira el pie.' },
+      { nombre:'Respiración costal lateral y cierre', pos:'sentada', instruccion:'Tres respiraciones costales y charla de cierre.', tiempo:'5 minutos', aviso:null },
+    ]
+  },
+
+  3: {
+    num:'SESIÓN 3', titulo:'Añadiendo movimiento', semanas:'Semanas 5 y 6',
+    desc:'Introducimos el movimiento de levantarse a medias de la silla y la patada de glúteo. Tu cuerpo está preparado. Seguimos cuidando la espalda en cada repetición.',
+    tags:['Sentada y de pie con apoyo','Con banda media','60 minutos','Cluster set'],
+    usaCluster: true,
+    calor:[
+      { nombre:'Calentamiento articular completo', pos:'sentada', instruccion:'Tobillos, rodillas, caderas, hombros. Un círculo completo por cada articulación, de abajo hacia arriba.', tiempo:'4 minutos', aviso:null },
+      { nombre:'Marcha con brazos coordinados', pos:'pie', instruccion:'Marcha en el sitio y ahora balanceamos los brazos de forma natural: brazo derecho adelante con rodilla izquierda. Con una mano en el respaldo si lo necesitas.', tiempo:'2 minutos', aviso:null },
+      { nombre:'Transferencias de peso soltando una mano', pos:'pie', instruccion:'Transferencias de peso lateral pero ahora intentamos soltar una mano 3-5 segundos. Si no te sientes segura, las dos manos siempre.', rep:'8 transferencias', aviso:null },
+    ],
+    principal:[
+      { nombre:'Gemelos — control total', pos:'pie', cluster:true, instruccion:'Subida en 1 tiempo, mantenemos 2 segundos arriba, bajada en 4 tiempos. Muy despacio hacia abajo. Sientes toda la pantorrilla trabajando.', aviso:null },
+      { nombre:'Levantarse a medias de la silla', pos:'sentada', cluster:true, instruccion:'¡Novedad! Desde sentada, empuja hacia arriba y levántate solo 5-8 cm del asiento, como si despegases apenas, y vuelve a sentarte con control total. No es una sentadilla completa todavía. La bajada lenta es lo más importante.', aviso:'Si hay molestia en la zona lumbar, reduce el rango de movimiento.' },
+      { nombre:'Sentadilla isométrica en pared — posición más baja', pos:'pie', cluster:true, instruccion:'Si las semanas anteriores toleraste bien la posición, ahora bajamos un poco más (rodillas a 100-110 grados). Si hay cualquier molestia, volvemos a la posición anterior.', tiempo:'20-25 seg', aviso:'Solo bajar más si las semanas anteriores fueron sin molestias.' },
+      { nombre:'Pallof press con más resistencia', pos:'sentada', cluster:true, instruccion:'Los dos lados, pero ahora con una banda de más tensión. El reto es mantener la columna completamente quieta mientras los brazos se extienden.', tiempo:'5 seg por repetición', aviso:null },
+      { nombre:'Patada de glúteo de pie', pos:'pie', cluster:true, instruccion:'De pie, las dos manos en la pared. Lleva una pierna hacia atrás en línea recta, mantén 2 segundos con la pierna extendida y vuelve con control. La espalda no se arquea en ningún momento.', rep:'8 por pierna', aviso:'El movimiento es pequeño y controlado. La pelvis no se mueve.' },
+      { nombre:'Remo + apertura de brazos', pos:'sentada', instruccion:'Después de cada remo, abre los brazos hacia los lados en cruz y mantén 2 segundos. Trabaja más músculos de la espalda alta.', aviso:null },
+    ],
+    calma:[
+      { nombre:'Estiramientos completos', pos:'sentada', instruccion:'Isquiotibiales 40 seg por pierna + figura 4 de cadera + apertura de pecho.', tiempo:'6 minutos', aviso:null },
+      { nombre:'Respiración y cierre', pos:'sentada', instruccion:'Tres respiraciones costales. Charla de cierre: ¿notaste diferencia en el levantarte de la silla?', tiempo:'4 minutos', aviso:null },
+    ]
+  },
+
+  4: {
+    num:'SESIÓN 4', titulo:'Fuerza y control consolidados', semanas:'Semanas 7 y 8',
+    desc:'Consolidamos todo lo aprendido. Levantarse de la silla completo, mayor reto de equilibrio y más intensidad. Al final del bloque repetiremos el test inicial.',
+    tags:['Sentada y de pie','Con banda media-alta','60 minutos','Cluster set'],
+    usaCluster: true,
+    calor:[
+      { nombre:'Calentamiento completo de pie', pos:'pie', instruccion:'Marcha suave 2 min + transferencias de peso 1 min + elevación de talones lentos 1 min + círculos de hombros 1 min. Todo agarrada al respaldo.', tiempo:'5-6 minutos', aviso:null },
+      { nombre:'Movilidad torácica sentada', pos:'sentada', instruccion:'Manos en los hombros. Gira el tronco muy suavemente hacia un lado y vuelve al centro. Movimiento pequeño solo en la parte alta de la espalda. La pelvis no se mueve.', rep:'5 rotaciones por lado', aviso:'Solo columna torácica. Sin forzar.' },
+    ],
+    principal:[
+      { nombre:'Levantarse de la silla completo — lento', pos:'sentada', cluster:true, instruccion:'¡El gran avance! Levantarse completamente de la silla con control total. La bajada en 4 tiempos, sin dejarse caer nunca. Este es el ejercicio más importante para tu autonomía.', aviso:'La bajada lenta es más importante que la subida. Si hay molestia, volvemos al movimiento parcial.' },
+      { nombre:'Levantarse de la silla — con intención de velocidad', pos:'sentada', cluster:true, instruccion:'Las mismas repeticiones pero ahora la subida la hacemos lo más rápida posible dentro del control. La bajada sigue siendo lenta. Este es el ejercicio que más mejora tu potencia muscular.', aviso:'Solo si el ejercicio anterior salió bien y sin molestias.' },
+      { nombre:'Sentadilla isométrica en pared — máximo personal', pos:'pie', cluster:true, instruccion:'Llegamos al máximo que hayamos alcanzado estas semanas. Mantenemos la posición más baja que toleramos con la espalda plana.', tiempo:'25-30 seg', aviso:'Espalda plana en la pared siempre.' },
+      { nombre:'Pallof press con pausa larga', pos:'sentada', cluster:true, instruccion:'Ahora mantenemos 8 segundos con los brazos extendidos resistiendo la rotación. Mayor reto para el core.', tiempo:'8 seg por repetición', aviso:null },
+      { nombre:'Patada de glúteo + equilibrio', pos:'pie', cluster:true, instruccion:'Después de llevar la pierna atrás, mantén 3 segundos más en el aire antes de volver. Trabaja el glúteo y el equilibrio a la vez.', rep:'8 por pierna', aviso:null },
+      { nombre:'Equilibrio sin pared', pos:'pie', instruccion:'De pie al lado de la silla, levantamos un pie del suelo. Mano cerca de la silla pero sin apoyar. Empezamos 5 segundos y llegamos hasta 15 si podemos.', tiempo:'5-15 seg por pie', aviso:'La silla siempre al alcance de la mano.' },
+    ],
+    calma:[
+      { nombre:'Estiramientos completos', pos:'sentada', instruccion:'Isquiotibiales 40 seg por pierna + figura 4 de cadera + apertura de pecho + respiración costal.', tiempo:'6 minutos', aviso:null },
+      { nombre:'Reflexión de progreso', pos:'sentada', instruccion:'Comparamos semana 1 con ahora. ¿Qué notas diferente? ¿Qué ha cambiado en tu día a día? En la próxima sesión repetiremos el test de la silla.', tiempo:'5 minutos', aviso:null },
+    ]
+  }
+};
+
+function showSesion(num, tabEl) {
+  document.querySelectorAll('.sesion-tab').forEach(t => t.classList.remove('active'));
+  if (tabEl) tabEl.classList.add('active');
+  const s = sesiones[num];
+  const container = document.getElementById('sesion-content');
+
+  const posLabel = p => p==='sentada'
+    ? '<span class="ej-posicion pos-sentada">🪑 Sentada</span>'
+    : '<span class="ej-posicion pos-pie">🧍 De pie</span>';
+
+  const renderEj = (ej, idx) => {
+    const chips = [];
+    if (ej.cluster) chips.push('<span class="ej-chip cluster">⚙️ Cluster set</span>');
+    if (ej.rep)    chips.push(`<span class="ej-chip rep">🔁 ${ej.rep}</span>`);
+    if (ej.tiempo) chips.push(`<span class="ej-chip tiempo">⏱ ${ej.tiempo}</span>`);
+    return `<div class="ejercicio">
+      <div style="display:flex;align-items:flex-start;gap:10px;">
+        <div style="min-width:28px;height:28px;border-radius:50%;background:var(--verde);color:white;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${idx+1}</div>
+        <div style="flex:1">
+          <div class="ej-nombre">${ej.nombre}</div>
+          ${posLabel(ej.pos)}
+          <div class="ej-instruccion">${ej.instruccion}</div>
+          <div class="ej-detalle">${chips.join('')}</div>
+          ${ej.aviso?`<div class="ej-aviso">⚠️ ${ej.aviso}</div>`:''}
+        </div>
+      </div>
+    </div>`;
+  };
+
+  const clusterHTML = s.usaCluster ? CLUSTER : '';
+
+  container.innerHTML = `
+    <div class="sesion-header">
+      <div class="sesion-num">${s.num} · ${s.semanas}</div>
+      <div class="sesion-titulo">${s.titulo}</div>
+      <div class="sesion-desc">${s.desc}</div>
+      <div class="sesion-tags">${s.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+    </div>
+    ${clusterHTML}
+    <div class="fase">
+      <div class="fase-header calor" onclick="toggleFase(this)">🌱 Entrada en calor — 10 minutos <span class="fase-arrow open">▾</span></div>
+      <div class="fase-body open">${s.calor.map((e,i)=>renderEj(e,i)).join('')}</div>
+    </div>
+    <div class="fase">
+      <div class="fase-header principal" onclick="toggleFase(this)">💪 Bloque principal — 35-40 minutos <span class="fase-arrow open">▾</span></div>
+      <div class="fase-body open">${s.principal.map((e,i)=>renderEj(e,i)).join('')}</div>
+    </div>
+    <div class="fase">
+      <div class="fase-header calma" onclick="toggleFase(this)">🌸 Vuelta a la calma — 10 minutos <span class="fase-arrow">▾</span></div>
+      <div class="fase-body">${s.calma.map((e,i)=>renderEj(e,i)).join('')}</div>
+    </div>`;
+}
+
+// ── RETOS DATA ──
+const retosData = [
+  { semana:1,  nombre:'Talones firmes al lavarse los dientes',      por_que:'El simple acto de lavarse los dientes dos veces al día se convierte en entrenamiento de equilibrio. Pequeño cambio, gran impacto a lo largo del tiempo.', instruccion:'Mientras te lavas los dientes, intenta no apoyarte en el lavabo. Mantén los pies juntos y la mirada al frente. Si necesitas apoyarte, hazlo — sin forzar. Con el tiempo irás necesitándolo menos.', aviso:'Si en algún momento sientes mareo o inestabilidad, apoya la mano en el lavabo. Siempre hay tiempo para soltar.' },
+  { semana:2,  nombre:'Levantarme del sofá sin usar las manos',      por_que:'Levantarse de una silla o sofá sin las manos es una habilidad clave para la autonomía. Tu cuerpo la está aprendiendo en la sesión del lunes — aquí la practicamos en la vida real.', instruccion:'Cuando vayas a levantarte del sofá o de la silla, intenta hacerlo sin apoyar las manos en el asiento. Pies bien apoyados, inclínate hacia adelante y empuja con las piernas. Si no sale la primera vez, inténtalo una vez más. Si tampoco, usa las manos y vuelves a probar otro momento.', aviso:'Solo si lo sientes seguro. Nunca con prisa.' },
+  { semana:3,  nombre:'Equilibrio con una mano en la silla',         por_que:'Pasar de dos manos a una mano es el siguiente paso natural en el trabajo de equilibrio. El cuerpo aprende a encontrar su propio centro de gravedad.', instruccion:'De pie al lado de la silla, apoya solo una mano en el respaldo. Mantén el equilibrio 10 segundos. Descansa y repite. Puedes hacerlo varias veces al día, en cualquier momento que pases por la silla.', aviso:'La otra mano libre, relajada al lado del cuerpo. Si sientes inestabilidad, apoya las dos manos.' },
+  { semana:4,  nombre:'Caminar de talón a punta en el pasillo',      por_que:'Caminar poniendo el talón de un pie justo delante de la punta del otro activa el sistema de equilibrio de forma muy eficaz. Es el ejercicio que usan los médicos para evaluar la estabilidad.', instruccion:'En el pasillo de tu casa, camina poniendo el talón de un pie justo delante de la punta del otro, como si caminaras sobre una línea recta. 5 pasos hacia adelante, para, y 5 pasos de vuelta. Puedes poner la mano rozando la pared si lo necesitas.', aviso:'Sin prisa. Si pierdes la línea, empiezas de nuevo desde el principio. No es un error, es el ejercicio.' },
+  { semana:5,  nombre:'Levantar un pie 10 segundos sin apoyo',       por_que:'Mantener el equilibrio sobre un solo pie es uno de los mejores predictores de salud y autonomía en personas mayores. Tu cuerpo está ya preparado para este reto.', instruccion:'De pie al lado de la silla, con la mano cerca pero sin apoyar, levanta un pie del suelo y mantén 10 segundos. Luego cambia de pie. Repite 3 veces por pie a lo largo del día.', aviso:'La silla siempre al alcance de la mano. Si sientes que te vas, apoya el pie. Sin dramatismo.' },
+  { semana:6,  nombre:'Puntillas mientras espero el agua caliente',  por_que:'Aprovechar los momentos de espera para moverse es una estrategia muy efectiva. Cada vez que activas los gemelos y el soleo también estás trabajando el equilibrio.', instruccion:'Cuando estés esperando que hierva el agua o se caliente algo en la cocina, sube en puntillas y mantén 3 segundos. Baja despacio. Repite tantas veces como dure la espera. Las manos pueden tocar levemente la encimera.', aviso:'La bajada siempre lenta y controlada.' },
+  { semana:7,  nombre:'El paso del umbral',                         por_que:'La mayoría de las caídas en casa ocurren al cruzar un umbral o cambiar de superficie. Entrenar el paso consciente y elevado es una de las formas más efectivas de prevenirlas.', instruccion:'Cada vez que pases por una puerta de tu casa, cruza el umbral levantando bien el pie — sin arrastrarlo. Un paso deliberado, controlado, como si hubiera un pequeño escalón invisible. No hace falta hacerlo rápido. Con el tiempo este gesto se vuelve automático.', aviso:'Solo en superficies planas y con buena iluminación. Si el pasillo está oscuro, enciende la luz antes.' },
+  { semana:8,  nombre:'Encontrar mi espalda neutra',                por_que:'Antes de pedirle al cuerpo que se mueva bien, necesita saber qué se siente moverse bien. Esta semana creamos una referencia sensorial propia — algo a lo que volver mentalmente en cada ejercicio y en cada momento del día.', instruccion:'De pie con la espalda apoyada en la pared, los talones a unos 5 cm. Las nalgas y la parte alta de la espalda tocan la pared. Nota el espacio natural que queda en la zona lumbar — esa curva suave es tu columna neutra. Ahora lleva el mentón ligeramente hacia adentro, como si sostuvieras una naranja entre el mentón y el pecho: no la aplastas, solo la sostienes. Siente cómo la parte de atrás del cuello se alarga. Memoriza esa sensación. Sepárate de la pared e intenta mantenerla. Vuelve a apoyarte y compara. Repite varias veces al día.', aviso:'El mentón no baja demasiado — solo una papada pequeña y suave. Si sientes tensión en el cuello, reduce el gesto.' },
+  { semana:9,  nombre:'Equilibrio con ojos semicerrados',            por_que:'Cuando cerramos los ojos parcialmente, el cuerpo depende más del sistema de equilibrio interno y menos de la vista. Es un reto más exigente que ayuda a entrenar el sistema vestibular.', instruccion:'De pie al lado de la silla, levanta un pie del suelo. Cuando estés estable, entorna los ojos (no los cierres del todo) y mantén 10 segundos. Con los ojos solo a medias cerrados, la luz sigue entrando pero el paisaje se vuelve borroso.', aviso:'Solo entornar, no cerrar del todo. La silla siempre al alcance. No lo hagas en escaleras ni superficies irregulares.' },
+  { semana:10, nombre:'Caminar por el pasillo sin tocar la pared',   por_que:'Has recorrido mucho camino desde la semana 1. Este reto es una prueba de que tu sistema de equilibrio ha mejorado: caminar sin necesitar el apoyo de la pared.', instruccion:'Camina de un extremo al otro del pasillo sin tocar la pared con las manos. Paso normal, sin prisa. Si en algún momento necesitas apoyarte, hazlo — no es un fracaso, es información. Inténtalo varias veces al día.', aviso:'Solo en el pasillo de casa, en superficie plana. No en escaleras.' },
+  { semana:11, nombre:'Equilibrio sobre talones',                    por_que:'Levantar las puntas de los pies y quedarse sobre los talones trabaja los músculos tibiales y activa un patrón de equilibrio diferente al de puntillas. Complementa todo lo que hemos hecho.', instruccion:'De pie al lado de la silla, levanta las puntas de los pies quedando apoyada solo sobre los talones. Mantén 5 segundos y baja con control. Repite 5 veces. Es un movimiento pequeño — si los talones hacen ruido al bajar, la bajada fue demasiado rápida.', aviso:'Agárrate al respaldo si lo necesitas al principio.' },
+  { semana:12, nombre:'Mi propio reto — ¿qué quiero intentar?',     por_que:'Has completado 11 semanas de retos de equilibrio. Ahora eres tú quien mejor conoce tu cuerpo y lo que puede hacer. Este reto final es tuyo.', instruccion:'Piensa en algo de tu vida diaria que antes te generaba inseguridad al moverte y que ahora sientes diferente. Puede ser levantarte de la cama, caminar por casa de noche, subir un escalón. Practícalo conscientemente esta semana y anota cómo te sientes.', aviso:null },
+];
+
+function renderRetos() {
+  const data = getData();
+  const container = document.getElementById('retos-content');
+  const semanaActual = parseInt(document.getElementById('semana-actual').value) || 1;
+
+  // Group by blocks of 3 weeks
+  const bloques = [
+    { label:'🌱 Bloque 1 — Semanas 1 a 3', semanas:[1,2,3] },
+    { label:'💪 Bloque 2 — Semanas 4 a 6', semanas:[4,5,6] },
+    { label:'⚡ Bloque 3 — Semanas 7 a 9', semanas:[7,8,9] },
+    { label:'🏆 Bloque 4 — Semanas 10 a 12', semanas:[10,11,12] },
+  ];
+
+  let html = '';
+  bloques.forEach(bloque => {
+    html += `<div class="reto-semana-label">${bloque.label}</div>`;
+    bloque.semanas.forEach(numSem => {
+      const r = retosData[numSem-1];
+      const semKey = 'semana_' + numSem;
+      const semData = data[semKey] || {};
+      const logrado = (semData['vier-logro']||'').includes('logré');
+      const esActual = numSem === semanaActual;
+      const esFuturo = numSem > semanaActual;
+
+      let badgeClass = logrado ? 'logrado' : esActual ? 'actual' : esFuturo ? 'pendiente' : 'pendiente';
+      let badgeText  = logrado ? '✅ Logrado' : esActual ? '⭐ Esta semana' : esFuturo ? '🔒 Próximamente' : '⭐ Pendiente';
+      let numClass   = logrado ? 'logrado' : '';
+
+      const isOpen = esActual || logrado;
+
+      html += `<div class="reto-card">
+        <div class="reto-header" onclick="toggleReto(this)" style="cursor:pointer;">
+          <div class="reto-num ${numClass}">${numSem}</div>
+          <div style="flex:1">
+            <div class="reto-semana">Semana ${numSem}</div>
+            <div class="reto-nombre">${r.nombre}</div>
+          </div>
+          <span class="reto-badge ${badgeClass}">${badgeText}</span>
+        </div>
+        <div class="reto-body" style="${isOpen ? '' : 'display:none'}">
+          <div class="reto-why"><strong>¿Por qué este reto?</strong> ${r.por_que}</div>
+          <div class="reto-instruccion">${r.instruccion}</div>
+          ${r.aviso ? `<div class="reto-aviso">⚠️ ${r.aviso}</div>` : ''}
+          <button class="reto-logro-btn ${logrado?'done':''}" onclick="marcarReto(${numSem}, this)">
+            ${logrado ? '🏆 ¡Reto completado!' : '⭐ Marcar como logrado'}
+          </button>
+        </div>
+      </div>`;
+    });
+  });
+
+  container.innerHTML = html;
+}
+
+function toggleReto(header) {
+  const body = header.nextElementSibling;
+  body.style.display = body.style.display === 'none' ? '' : 'none';
+}
+
+function marcarReto(numSem, btn) {
+  const data = getData();
+  const key = 'semana_' + numSem;
+  if (!data[key]) data[key] = {};
+  const yaLogrado = (data[key]['vier-logro']||'').includes('logré');
+  if (yaLogrado) {
+    data[key]['vier-logro'] = '';
+    btn.classList.remove('done');
+    btn.textContent = '⭐ Marcar como logrado';
+  } else {
+    data[key]['vier-logro'] = '🏆 ¡Sí, lo logré!';
+    data[key].fecha = data[key].fecha || new Date().toLocaleDateString('es-ES');
+    btn.classList.add('done');
+    btn.textContent = '🏆 ¡Reto completado!';
+    showToast('🏆 ¡Muy bien, Juana! Reto de la semana ' + numSem + ' logrado.');
+  }
+  saveData(data);
+  // Update badge
+  const card = btn.closest('.reto-card');
+  const badge = card.querySelector('.reto-badge');
+  const numEl = card.querySelector('.reto-num');
+  if (!yaLogrado) { badge.className='reto-badge logrado'; badge.textContent='✅ Logrado'; numEl.classList.add('logrado'); }
+  else { badge.className='reto-badge actual'; badge.textContent='⭐ Esta semana'; numEl.classList.remove('logrado'); }
+}
+
+// Init
+cargarSemana();
+showSesion(1, document.querySelector('.sesion-tab'));
+</script>
+</body>
+</html>
